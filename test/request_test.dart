@@ -8,6 +8,7 @@ import 'package:connectivity_plus/connectivity_plus.dart'
 import 'package:flutter_network/flutter_network.dart';
 
 import 'instance_test.dart';
+import 'models.dart';
 
 void main() {
   late NetworkOptions options;
@@ -21,7 +22,6 @@ void main() {
           ),
           options = NetworkOptions(
             baseUrl: baseUrl,
-            checkConnection: true,
             connection: connection,
           ),
           service = NetworkService(options),
@@ -36,8 +36,7 @@ void main() {
       expect((resultObject as SuccessfulResult).data, isA<TestPost>());
 
       /// Get objects list
-      final Result resultList =
-          await service.get('users/1/posts', TestPost.fromJson);
+      final Result resultList = await service.get('users', TestUser.fromJson);
 
       expect(resultList, isA<SuccessfulResult>());
     });
@@ -91,59 +90,6 @@ void main() {
       expect(result, isA<SuccessfulResult>());
     });
   });
-}
-
-class TestPost {
-  final int userId;
-  final int? id;
-  final String title;
-  final String body;
-
-  TestPost({
-    required this.userId,
-    required this.title,
-    required this.body,
-    this.id,
-  });
-
-  TestPost.fromJson(Map<String, dynamic> json)
-      : userId = json['userId'],
-        id = json['id'],
-        title = json['title'],
-        body = json['body'];
-
-  Map<String, dynamic> toJson() => {
-        'userId': userId,
-        if (id != null) 'id': id,
-        'title': title,
-        'body': body,
-      };
-
-  TestPost copyWith({
-    int? userId,
-    int? id,
-    String? title,
-    String? body,
-  }) {
-    return TestPost(
-      userId: userId ?? this.userId,
-      id: id ?? this.id,
-      title: title ?? this.title,
-      body: body ?? this.body,
-    );
-  }
-
-  @override
-  int get hashCode => Object.hash(userId, id, title, body);
-
-  @override
-  bool operator ==(Object other) =>
-      other is TestPost &&
-      runtimeType == other.runtimeType &&
-      userId == other.userId &&
-      id == other.id &&
-      title == other.title &&
-      body == other.body;
 }
 
 class MockConnectivity extends Mock implements Connectivity {
