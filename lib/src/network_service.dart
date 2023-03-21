@@ -19,7 +19,7 @@ class NetworkService {
                     baseUrl: options.baseUrl!,
                     followRedirects: options.followRedirects ?? false,
                     validateStatus: options.validateStatus ??
-                        (status) => status! >= 200 && status < 500,
+                        (status) => status! >= 200 && status < 300,
                   ),
             ) {
     if (options.useLogger) {
