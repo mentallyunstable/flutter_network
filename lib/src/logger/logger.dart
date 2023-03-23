@@ -146,7 +146,7 @@ class NetworkLogger {
   }
 
   static void _printResponseList(final List data) {
-    _debugPrint('$_pointRightSymbol [');
+    _debugPrint('$_verticalLineSymbol [');
     var counter = 0;
     for (var entry in data) {
       final isLast = counter++ == data.length - 1;
@@ -154,41 +154,47 @@ class NetworkLogger {
       if (entry is Map) {
         _printMap(
           entry,
-          prefix: _horizontalLineSymbol,
-          indentAmount: 2,
+          prefix: _indent,
+          indentAmount: 1,
           addComma: !isLast,
         );
       } else {
         _printInfo(info: entry);
       }
     }
-    _debugPrint('$_pointRightSymbol ]');
+    _debugPrint('$_verticalLineSymbol ]');
   }
 
   static void _printMap(
     final Map map, {
     final String prefix = '',
     final bool addComma = false,
+    final bool isNested = false,
     final int indentAmount = 1,
+    final bool hasOpenBracket = true,
   }) {
-    _debugPrint('$_pointRightSymbol$prefix {');
+    if (hasOpenBracket) {
+      _debugPrint('$_verticalLineSymbol$prefix {');
+    }
 
     var counter = 0;
     map.forEach((key, value) {
       final isLast = counter++ == map.length - 1;
+      final keyPrint =
+          '$_verticalLineSymbol$prefix${_indent * indentAmount}$key: ';
 
       /// If value is String, split it by '\n' (line feed) symbol and print each line
       if (value is String) {
         final split = value.split('\n');
         final buffer = StringBuffer();
 
-        _debugPrint('$_doublePointerRight$prefix${_indent * indentAmount}'
-            '$key: ${split[0]}${split.length == 1 && !isLast ? ',' : ''}');
+        _debugPrint(
+            '$keyPrint${split[0]}${split.length == 1 && !isLast ? ',' : ''}');
 
         for (int i = 1; i < split.length; i++) {
           /// ': ' = 2 symbols for indent
           buffer.write(
-              '$_verticalLineSymbol${_indent + ' ' * (key.length + _doublePointerRight.length + 2)}');
+              '$_verticalLineSymbol${_indent * indentAmount + ' ' * (key.length + 2)}');
           buffer.write(split[i]);
           if (!isLast && i == split.length - 1) {
             buffer.write(',');
@@ -201,11 +207,26 @@ class NetworkLogger {
         return;
       }
 
-      _debugPrint('$_doublePointerRight$prefix${_indent * indentAmount}'
-          '$key: $value${isLast ? '' : ','}');
+      if (value is Map) {
+        _debugPrint('$keyPrint{');
+        _printMap(
+          value,
+          prefix: prefix,
+          isNested: true,
+          hasOpenBracket: false,
+          addComma: !isLast,
+          indentAmount: indentAmount + 1,
+        );
+
+        return;
+      }
+
+      _debugPrint('$keyPrint$value${isLast ? '' : ','}');
     });
 
-    _debugPrint('$_pointRightSymbol$prefix }${addComma ? ',' : ''}');
+    _debugPrint(
+        '$_verticalLineSymbol$prefix${isNested ? _indent * (indentAmount - 1) : ' '}}'
+        '${addComma ? ',' : ''}');
   }
 
   static void _printErrorMessage(final NetworkError? error) {

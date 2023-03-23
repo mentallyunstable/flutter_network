@@ -8,8 +8,13 @@ import 'package:connectivity_plus/connectivity_plus.dart'
 import 'package:flutter_network/flutter_network.dart';
 
 import 'instance_test.dart';
+import 'models.dart';
 
 void main() {
+  const requestsTag = 'requests';
+  const validTag = 'valid';
+  const invalidTag = 'invalid';
+
   late NetworkOptions options;
   late NetworkService service;
   late Connection connection;
@@ -21,7 +26,6 @@ void main() {
           ),
           options = NetworkOptions(
             baseUrl: baseUrl,
-            checkConnection: true,
             connection: connection,
           ),
           service = NetworkService(options),
@@ -36,11 +40,10 @@ void main() {
       expect((resultObject as SuccessfulResult).data, isA<TestPost>());
 
       /// Get objects list
-      final Result resultList =
-          await service.get('users/1/posts', TestPost.fromJson);
+      final Result resultList = await service.get('users', TestUser.fromJson);
 
       expect(resultList, isA<SuccessfulResult>());
-    });
+    }, tags: [requestsTag, validTag]);
 
     test('post request', () async {
       final post = TestPost(
@@ -63,7 +66,7 @@ void main() {
         (result as SuccessfulResult<TestPost>).data,
         post.copyWith(id: 101),
       );
-    });
+    }, tags: [requestsTag, validTag]);
 
     test('put request', () async {
       final post = TestPost(
@@ -84,66 +87,58 @@ void main() {
 
       expect(result, isA<SuccessfulResult>());
       expect((result as SuccessfulResult<TestPost>).data, post);
-    });
+    }, tags: [requestsTag, validTag]);
+
     test('delete request', () async {
       final result = await service.delete('posts/1');
 
       expect(result, isA<SuccessfulResult>());
-    });
-  });
-}
-
-class TestPost {
-  final int userId;
-  final int? id;
-  final String title;
-  final String body;
-
-  TestPost({
-    required this.userId,
-    required this.title,
-    required this.body,
-    this.id,
+    }, tags: [requestsTag, validTag]);
   });
 
-  TestPost.fromJson(Map<String, dynamic> json)
-      : userId = json['userId'],
-        id = json['id'],
-        title = json['title'],
-        body = json['body'];
+  group('Invalid requests', () {
+    setUp(() => {
+          connection = Connection(
+            connectivity: MockConnectivity(ConnectivityResult.wifi),
+          ),
+          options = NetworkOptions(
+            baseUrl: baseUrl,
+            connection: connection,
+          ),
+          service = NetworkService(options),
+        });
 
-  Map<String, dynamic> toJson() => {
-        'userId': userId,
-        if (id != null) 'id': id,
-        'title': title,
-        'body': body,
-      };
+    test('connection error', () async {
+      final mockOptions = options.copyWith(
+          connection: Connection(
+        connectivity: MockConnectivity(ConnectivityResult.none),
+      ));
+      service = NetworkService(mockOptions);
 
-  TestPost copyWith({
-    int? userId,
-    int? id,
-    String? title,
-    String? body,
-  }) {
-    return TestPost(
-      userId: userId ?? this.userId,
-      id: id ?? this.id,
-      title: title ?? this.title,
-      body: body ?? this.body,
-    );
-  }
+      final Result result =
+          await service.get<TestPost>('posts/1', TestPost.fromJson);
 
-  @override
-  int get hashCode => Object.hash(userId, id, title, body);
+      expect(result, isA<ErrorResult>());
+      final error = (result as ErrorResult).error;
+      expect(error, isA<ConnectionNetworkError>());
+    }, tags: [requestsTag, invalidTag]);
 
-  @override
-  bool operator ==(Object other) =>
-      other is TestPost &&
-      runtimeType == other.runtimeType &&
-      userId == other.userId &&
-      id == other.id &&
-      title == other.title &&
-      body == other.body;
+    test('type error', () async {
+      final Result result = await service.get('posts/1', TestUser.fromJson);
+
+      expect(result, isA<ErrorResult>());
+      final error = (result as ErrorResult).error;
+      expect(error, isA<TypeNetworkError>());
+    }, tags: [requestsTag, invalidTag]);
+
+    test('dio error', () async {
+      final Result result = await service.get('blank-url', TestPost.fromJson);
+
+      expect(result, isA<ErrorResult>());
+      final error = (result as ErrorResult).error;
+      expect(error, isA<DioNetworkError>());
+    }, tags: [requestsTag, invalidTag]);
+  });
 }
 
 class MockConnectivity extends Mock implements Connectivity {
