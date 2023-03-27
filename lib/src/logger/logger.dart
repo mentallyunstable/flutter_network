@@ -136,7 +136,7 @@ class NetworkLogger {
         return;
       }
       if (data is List) {
-        _printResponseList(data);
+        _printList(data);
 
         return;
       }
@@ -145,8 +145,17 @@ class NetworkLogger {
     }
   }
 
-  static void _printResponseList(final List data) {
-    _debugPrint('$_verticalLineSymbol [');
+  static void _printList(
+    final List data, {
+    final int indentAmount = 1,
+    final bool isNested = false,
+    final bool addComma = false,
+    final bool hasOpenBracket = true,
+  }) {
+    if (hasOpenBracket) {
+      _debugPrint('$_verticalLineSymbol[');
+    }
+
     var counter = 0;
     for (var entry in data) {
       final isLast = counter++ == data.length - 1;
@@ -154,55 +163,68 @@ class NetworkLogger {
       if (entry is Map) {
         _printMap(
           entry,
-          prefix: _indent,
-          indentAmount: 1,
+          isNested: true,
           addComma: !isLast,
+          indentAmount: indentAmount + 1,
         );
       } else {
         _printInfo(info: entry);
       }
     }
-    _debugPrint('$_verticalLineSymbol ]');
+    _debugPrint(
+        '$_verticalLineSymbol${isNested ? _indent * (indentAmount - 1) : ''}]'
+        '${addComma ? ',' : ''}');
   }
 
   static void _printMap(
     final Map map, {
-    final String prefix = '',
-    final bool addComma = false,
-    final bool isNested = false,
     final int indentAmount = 1,
+    final bool isNested = false,
+    final bool addComma = false,
     final bool hasOpenBracket = true,
   }) {
     if (hasOpenBracket) {
-      _debugPrint('$_verticalLineSymbol$prefix {');
+      _debugPrint(
+          '$_verticalLineSymbol${isNested ? _indent * (indentAmount - 1) : ''}{');
     }
 
     var counter = 0;
     map.forEach((key, value) {
       final isLast = counter++ == map.length - 1;
-      final keyPrint =
-          '$_verticalLineSymbol$prefix${_indent * indentAmount}$key: ';
+      final keyPrint = '$_verticalLineSymbol${_indent * (indentAmount)}$key: ';
 
       /// If value is String, split it by '\n' (line feed) symbol and print each line
       if (value is String) {
         final split = value.split('\n');
-        final buffer = StringBuffer();
 
-        _debugPrint(
-            '$keyPrint${split[0]}${split.length == 1 && !isLast ? ',' : ''}');
+        if (split.length > 1) {
+          final buffer = StringBuffer();
 
-        for (int i = 1; i < split.length; i++) {
-          /// ': ' = 2 symbols for indent
-          buffer.write(
-              '$_verticalLineSymbol${_indent * indentAmount + ' ' * (key.length + 2)}');
-          buffer.write(split[i]);
-          if (!isLast && i == split.length - 1) {
+          buffer.write('$keyPrint"${split[0]}\n');
+
+          for (int i = 1; i < split.length; i++) {
+            /// ': ' = 2 symbols for indent
+            buffer.write(
+                '$_verticalLineSymbol${_indent * indentAmount + ' ' * (key.length + 2)}');
+            buffer.write(split[i]);
+            if (i != split.length - 1) {
+              buffer.write('\n');
+            }
+          }
+
+          buffer.write('"');
+          if (!isLast) {
             buffer.write(',');
           }
 
           _debugPrint(buffer.toString());
           buffer.clear();
+
+          return;
         }
+
+        _debugPrint(
+            '$keyPrint"${split[0]}"${split.length == 1 && !isLast ? ',' : ''}');
 
         return;
       }
@@ -211,7 +233,19 @@ class NetworkLogger {
         _debugPrint('$keyPrint{');
         _printMap(
           value,
-          prefix: prefix,
+          isNested: true,
+          hasOpenBracket: false,
+          addComma: !isLast,
+          indentAmount: indentAmount + 1,
+        );
+
+        return;
+      }
+
+      if (value is List) {
+        _debugPrint('$keyPrint[');
+        _printList(
+          value,
           isNested: true,
           hasOpenBracket: false,
           addComma: !isLast,
@@ -225,7 +259,7 @@ class NetworkLogger {
     });
 
     _debugPrint(
-        '$_verticalLineSymbol$prefix${isNested ? _indent * (indentAmount - 1) : ' '}}'
+        '$_verticalLineSymbol${isNested ? _indent * (indentAmount - 1) : ''}}'
         '${addComma ? ',' : ''}');
   }
 
