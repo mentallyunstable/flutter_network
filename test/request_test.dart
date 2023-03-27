@@ -1,13 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:dio/dio.dart';
-import 'package:mockito/mockito.dart';
+import 'package:dio/dio.dart' show Options;
 import 'package:connectivity_plus/connectivity_plus.dart'
-    show Connectivity, ConnectivityResult;
+    show ConnectivityResult;
 
 import 'package:flutter_network/flutter_network.dart';
 
 import 'instance_test.dart';
+import 'mock_connectivity.dart';
 import 'models.dart';
 
 void main() {
@@ -31,19 +31,21 @@ void main() {
           service = NetworkService(options),
         });
 
-    test('get request', () async {
+    test('get request object', () async {
       /// Get object
       final Result resultObject =
           await service.get<TestPost>('posts/1', TestPost.fromJson);
 
       expect(resultObject, isA<SuccessfulResult<TestPost>>());
       expect((resultObject as SuccessfulResult).data, isA<TestPost>());
+    }, tags: [requestsTag, validTag]);
 
+    test('get request list', () async {
       /// Get objects list
       final Result resultList = await service.get('users', TestUser.fromJson);
 
       expect(resultList, isA<SuccessfulResult>());
-    }, tags: [requestsTag, validTag]);
+    });
 
     test('post request', () async {
       final post = TestPost(
@@ -139,13 +141,4 @@ void main() {
       expect(error, isA<DioNetworkError>());
     }, tags: [requestsTag, invalidTag]);
   });
-}
-
-class MockConnectivity extends Mock implements Connectivity {
-  final ConnectivityResult result;
-
-  MockConnectivity(this.result);
-
-  @override
-  Future<ConnectivityResult> checkConnectivity() async => result;
 }
