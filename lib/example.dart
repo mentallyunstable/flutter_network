@@ -5,10 +5,10 @@ const String baseUrl = 'https://jsonplaceholder.com';
 Future getUser() async {
   final service = NetworkService(const NetworkOptions(baseUrl: baseUrl));
 
-  final Result result = await service.get<Post>('/posts/1', Post.fromJson);
+  final Result result = await service.get('/posts/1', Post.fromJson);
 
   /// handle successful result with decoded data
-  if (result is SuccessfulResult<Post>) {
+  if (result is SuccessfulResult) {
     final post = result.data!;
 
     print('Successful response, post title: ${post.title}');

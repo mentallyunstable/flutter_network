@@ -2,7 +2,7 @@ import 'package:flutter_network/flutter_network.dart';
 
 export 'package:dio/dio.dart' show Dio, BaseOptions, Interceptor;
 
-class NetworkOptions {
+class NetworkOptions<T extends ErrorData> {
   /// [Connection] instance that performs an internet connection checks
   /// It's not necessary to provide [Connection] object,
   /// it will be created automatically with default options
@@ -33,6 +33,10 @@ class NetworkOptions {
   /// as ['user/1'] will be as ['https://example.com/api/user/1']
   final String? baseUrl;
 
+  /// Decoding method for `NetworkService`, returning error response data
+  /// If null, data will not be decoded and `ErrorResult.data` will also be null
+  final T Function(Map<String, dynamic> json)? errorDataFromJson;
+
   /// Should [NetworkService] firstly check for the internet connection and
   /// return [NetworkError.connection] due to the connection error
   final bool checkConnection;
@@ -57,6 +61,7 @@ class NetworkOptions {
     this.dio,
     this.baseOptions,
     this.baseUrl,
+    this.errorDataFromJson,
     this.checkConnection = true,
     this.useLogger = true,
     this.validateStatus,
@@ -70,6 +75,7 @@ class NetworkOptions {
     final Dio? dio,
     final BaseOptions? baseOptions,
     final String? baseUrl,
+    final T Function(Map<String, dynamic> json)? errorDataFromJson,
     final bool? checkConnection,
     final bool? useLogger,
     final bool Function(int? status)? validateStatus,
@@ -82,6 +88,7 @@ class NetworkOptions {
       dio: dio ?? this.dio,
       baseOptions: baseOptions ?? this.baseOptions,
       baseUrl: baseUrl ?? this.baseUrl,
+      errorDataFromJson: errorDataFromJson ?? this.errorDataFromJson,
       checkConnection: checkConnection ?? this.checkConnection,
       useLogger: useLogger ?? this.useLogger,
       validateStatus: validateStatus ?? this.validateStatus,

@@ -1,6 +1,6 @@
-import 'result.dart';
+import 'package:flutter_network/flutter_network.dart';
 
-class SuccessfulResult<T> implements Result<T> {
+class SuccessfulResult<T, E extends ErrorData> implements Result<T, E> {
   final T? data;
 
   const SuccessfulResult({required this.data});

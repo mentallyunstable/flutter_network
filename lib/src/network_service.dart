@@ -46,7 +46,7 @@ class NetworkService {
   ///
   /// If device has no internet connection, returns
   /// [ErrorResult] with [NoConnectionError].
-  Future<Result<T>> get<T>(
+  Future<Result<T, E>> get<T, E extends ErrorData>(
     final String path,
     final T Function(Map<String, dynamic> json) fromJson, {
     final Map<String, dynamic>? queryParameters,
@@ -97,7 +97,7 @@ class NetworkService {
   ///
   /// If device has no internet connection, returns
   /// [ErrorResult] with [NoConnectionError].
-  Future<Result<T>> post<T>(
+  Future<Result<T, E>> post<T, E extends ErrorData>(
     final String path,
     final T Function(Map<String, dynamic> json) fromJson, {
     final Object? data = const {},
@@ -151,7 +151,7 @@ class NetworkService {
   ///
   /// If device has no internet connection, returns
   /// [ErrorResult] with [NoConnectionError].
-  Future<Result<T>> put<T>(
+  Future<Result<T, E>> put<T, E extends ErrorData>(
     final String path,
     final T Function(Map<String, dynamic> json) fromJson, {
     required final Object data,
@@ -206,7 +206,7 @@ class NetworkService {
   ///
   /// If device has no internet connection, returns
   /// [ErrorResult] with [NoConnectionError].
-  Future<Result<T>> patch<T>(
+  Future<Result<T, E>> patch<T, E extends ErrorData>(
     final String path,
     final T Function(Map<String, dynamic> json) fromJson, {
     required final Object data,
@@ -261,7 +261,7 @@ class NetworkService {
   ///
   /// If device has no internet connection, returns
   /// [ErrorResult] with [NoConnectionError].
-  Future<Result<T>> delete<T>(
+  Future<Result<T, E>> delete<T, E extends ErrorData>(
     final String path, {
     final T Function(Map<String, dynamic> json)? fromJson,
     final Object? data = const {},
@@ -317,9 +317,8 @@ class NetworkService {
   T _decodeMap<T>(
     final Response response,
     final T Function(Map<String, dynamic> json) fromJson,
-  ) {
-    return fromJson(response.data);
-  }
+  ) =>
+      fromJson(response.data);
 
   T _decodeList<T>(
     final Response response,
@@ -330,7 +329,7 @@ class NetworkService {
     return List.from(list.map((item) => fromJson(item)).toList()) as T;
   }
 
-  Future<Result<T>> _handleRequest<T>({
+  Future<Result<T, E>> _handleRequest<T, E extends ErrorData>({
     required final Future<Response> request,
     required final T Function(Map<String, dynamic> json)? fromJson,
     required NetworkLogInfo logInfo,
@@ -346,8 +345,6 @@ class NetworkService {
 
       final response = await request;
       logInfo = logInfo.copyWith(response: response);
-
-      // final T data = _decode(response, fromJson);
 
       return Result.success(data: _decode(response, fromJson));
     } on TypeError catch (typeError, stackTrace) {
@@ -367,7 +364,17 @@ class NetworkService {
 
       NetworkLogger.logError(logInfo.copyWith(error: error));
 
-      return Result.error(error: error);
+      return Result.error(
+        error: error,
+        // data: dioError.response?.data != null &&
+        //         options.errorDataFromJson != null
+        //     ? _decodeError(dioError.response!, options.errorDataFromJson!)
+        //     : null,
+        data:
+            dioError.response?.data != null && options.errorDataFromJson != null
+                ? options.errorDataFromJson!(dioError.response!.data) as E
+                : null,
+      );
     }
   }
 }

@@ -14,8 +14,8 @@ Package build upon powerful HTTP client [dio](https://pub.dev/packages/dio), tha
 - [x] Basic logic
 - [x] Logger
 - [x] Unit tests for basic requests
+- [x] Error response decoding
+- [x] Extend logger with more info logged
+- [x] Extend `NetworkOptions` and `NetworkLoggerOptions`
+- [x] Unit tests for invalid requests
 - [ ] Add example project
-- [ ] Error response decoding
-- [ ] Extend logger with more info logged
-- [ ] Extend `NetworkOptions` and `NetworkLoggerOptions`
-- [ ] Unit tests for invalid requests

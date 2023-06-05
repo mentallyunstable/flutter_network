@@ -273,10 +273,13 @@ class NetworkLogger {
       _printInfo(title: 'error message', info: error.dioError.message);
       if (error.dioError.type != DioErrorType.unknown) {
         _printInfo(title: 'error response');
-        if (error.dioError.error is Map) {
-          _printMap(error.dioError.error as Map);
+        final response = error.dioError.response;
+        if (response == null) {
+          return;
         }
-        _printInfo(info: error.dioError.error);
+        if (response.data is Map) {
+          _printMap(response.data as Map);
+        }
       }
     }
   }

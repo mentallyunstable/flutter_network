@@ -7,3 +7,4 @@ export 'network_error/type_network_error.dart';
 export 'result/result.dart';
 export 'result/successful_result.dart';
 export 'result/error_result.dart';
+export 'result/error_data.dart';

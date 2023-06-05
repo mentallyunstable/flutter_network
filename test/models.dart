@@ -1,3 +1,5 @@
+import 'package:flutter_network/src/data/result/error_data.dart';
+
 class TestPost {
   final int userId;
   final int? id;
@@ -94,4 +96,15 @@ class TestGeo {
   TestGeo.fromJson(Map<String, dynamic> json)
       : lat = json['lat'],
         lng = json['lng'];
+}
+
+class TestErrorData implements ErrorData {
+  final String error;
+  final int timestamp;
+
+  TestErrorData(this.error, this.timestamp);
+
+  TestErrorData.fromJson(Map<String, dynamic> json)
+      : error = json['error'],
+        timestamp = json['timestamp'];
 }

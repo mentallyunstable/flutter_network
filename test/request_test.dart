@@ -33,18 +33,17 @@ void main() {
 
     test('get request object', () async {
       /// Get object
-      final Result resultObject =
-          await service.get<TestPost>('posts/1', TestPost.fromJson);
+      final result = await service.get('posts/1', TestPost.fromJson);
 
-      expect(resultObject, isA<SuccessfulResult<TestPost>>());
-      expect((resultObject as SuccessfulResult).data, isA<TestPost>());
+      expect(result, isA<SuccessfulResult>());
+      expect((result as SuccessfulResult).data, isA<TestPost>());
     }, tags: [requestsTag, validTag]);
 
     test('get request list', () async {
       /// Get objects list
-      final Result resultList = await service.get('users', TestUser.fromJson);
+      final Result result = await service.get('users', TestUser.fromJson);
 
-      expect(resultList, isA<SuccessfulResult>());
+      expect(result, isA<SuccessfulResult>());
     });
 
     test('post request', () async {
@@ -54,7 +53,7 @@ void main() {
         body: 'New post body',
       );
 
-      final result = await service.post<TestPost>(
+      final result = await service.post(
         'posts',
         TestPost.fromJson,
         data: post,
@@ -65,7 +64,7 @@ void main() {
 
       expect(result, isA<SuccessfulResult>());
       expect(
-        (result as SuccessfulResult<TestPost>).data,
+        (result as SuccessfulResult).data,
         post.copyWith(id: 101),
       );
     }, tags: [requestsTag, validTag]);
@@ -78,7 +77,7 @@ void main() {
         body: 'Put post body',
       );
 
-      final result = await service.put<TestPost>(
+      final result = await service.put(
         'posts/1',
         TestPost.fromJson,
         data: post,
@@ -88,7 +87,7 @@ void main() {
       );
 
       expect(result, isA<SuccessfulResult>());
-      expect((result as SuccessfulResult<TestPost>).data, post);
+      expect((result as SuccessfulResult).data, post);
     }, tags: [requestsTag, validTag]);
 
     test('delete request', () async {
@@ -117,8 +116,7 @@ void main() {
       ));
       service = NetworkService(mockOptions);
 
-      final Result result =
-          await service.get<TestPost>('posts/1', TestPost.fromJson);
+      final Result result = await service.get('posts/1', TestPost.fromJson);
 
       expect(result, isA<ErrorResult>());
       final error = (result as ErrorResult).error;
@@ -134,11 +132,29 @@ void main() {
     }, tags: [requestsTag, invalidTag]);
 
     test('dio error', () async {
-      final Result result = await service.get('blank-url', TestPost.fromJson);
+      NetworkOptions<TestErrorData> networkOptions = NetworkOptions(
+        baseUrl: 'https://api.coincap.io/v2/',
+        connection: connection,
+        errorDataFromJson: TestErrorData.fromJson,
+      );
+      service = NetworkService(networkOptions);
+
+      final result = await service.get<TestPost, TestErrorData>(
+        'assets/%7B%7Basset_id%7D%7D/markets?',
+        TestPost.fromJson,
+      );
 
       expect(result, isA<ErrorResult>());
-      final error = (result as ErrorResult).error;
-      expect(error, isA<DioNetworkError>());
+      if (result is ErrorResult<TestPost, TestErrorData>) {
+        final error = result.error;
+        expect(error, isA<DioNetworkError>());
+
+        expect(result.data, isA<TestErrorData>());
+
+        final errorData = result.data!;
+
+        expect(errorData.error, '{{asset_id}} not found');
+      }
     }, tags: [requestsTag, invalidTag]);
   });
 }
