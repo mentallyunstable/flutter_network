@@ -1,5 +1,5 @@
 ## flutter_network
-Package build upon powerful HTTP client [dio](https://pub.dev/packages/dio), that extends some basic functionality and simplifies client-server logic handling process.
+Package build upon powerful HTTP client [dio](https://pub.dev/packages/dio)[![Pub](https://img.shields.io/pub/v/dio.svg)](https://pub.dev/packages/dio), that extends some basic functionality and simplifies client-server logic handling process.
 
 ### Features
 

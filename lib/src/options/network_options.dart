@@ -1,58 +1,62 @@
 import 'package:flutter_network/flutter_network.dart';
+import '../logger/logger.dart';
 
-export 'package:dio/dio.dart' show Dio, BaseOptions, Interceptor;
+import 'package:dio/dio.dart';
 
+/// Represents configurable options for [NetworkService].
 class NetworkOptions<T extends ErrorData> {
-  /// [Connection] instance that performs an internet connection checks
+  /// [Connection] instance that performs an internet connection checks.
   /// It's not necessary to provide [Connection] object,
-  /// it will be created automatically with default options
+  /// it will be created automatically with default options.
+  ///
+  /// Refer to connectivity_plus package for detailed info.
   final Connection connection;
 
-  /// [NetworkLoggerOptions] provides conditions for logging via [NetworkLogger]
+  /// [NetworkLoggerOptions] provides conditions for logging via [NetworkLogger].
   /// It's not necessary to provide [NetworkLoggerOptions] object,
-  /// it will be created automatically with default options
+  /// it will be created automatically with default options.
   final NetworkLoggerOptions loggerOptions;
 
-  /// [NetworkService] will create [Dio] instance itself for doing requests
+  /// [NetworkService] will create [Dio] instance itself for doing requests.
   ///
-  /// [Dio] can be provided in the constructor instead if needed
+  /// [Dio] object can be provided in the constructor instead if needed.
   final Dio? dio;
 
   /// [NetworkService] will create [BaseOptions] itself for [dio] instance
-  /// with default parameters
+  /// with default parameters.
   ///
-  /// [BaseOptions] can be provided in the constructor instead if needed
+  /// [BaseOptions] can be provided in the constructor instead if needed.
   ///
   /// Also [dio] instance can be provided in the constructor with
-  /// specified [BaseOptions] instance if provided
+  /// specified [BaseOptions] instance if provided.
   final BaseOptions? baseOptions;
 
   /// Base url to build requests, for example:
   ///
-  /// Provide [baseUrl] as ['https://example.com/api/'] and [path] when doing request
-  /// as ['user/1'] will be as ['https://example.com/api/user/1']
+  /// When doing request, provide [baseUrl] as "https://example.com/api/" and path
+  /// as "user/1" so full url will look like "https://example.com/api/user/1".
   final String? baseUrl;
 
-  /// Decoding method for `NetworkService`, returning error response data
-  /// If null, data will not be decoded and `ErrorResult.data` will also be null
+  /// Decoding method for [NetworkService], returning error response data.
+  /// If null, data will not be decoded and [ErrorResult.data] will also be null.
   final T Function(Map<String, dynamic> json)? errorDataFromJson;
 
   /// Should [NetworkService] firstly check for the internet connection and
-  /// return [NetworkError.connection] due to the connection error
+  /// return [NetworkError.connection] due to the connection error.
   final bool checkConnection;
 
-  /// Should [NetworkService] use [NetworkLogger] as [dio.Interceptor]
+  /// Should [NetworkService] use [NetworkLogger] as [Interceptor].
   final bool useLogger;
 
-  /// Refer to followRedirects in [Dio] package
+  /// Refer to followRedirects in dio package.
   final bool? followRedirects;
 
-  /// Refer to validateStatus property in [Dio] package
+  /// Refer to validateStatus property in dio package.
   final bool Function(int? status)? validateStatus;
 
-  /// Interceptors to use (if provided) when creating [dio] instance
+  /// Interceptors to use (if provided) when creating [dio] instance.
   ///
-  /// Refer to dio [Interceptor] for detailed info
+  /// Refer to dio [Interceptor] for detailed info.
   final List<Interceptor>? interceptors;
 
   const NetworkOptions({
@@ -69,6 +73,7 @@ class NetworkOptions<T extends ErrorData> {
     this.interceptors,
   });
 
+  /// Creates a copy of this object but with the given fields replaced with the new values.
   NetworkOptions copyWith({
     final Connection? connection,
     final NetworkLoggerOptions? loggerOptions,

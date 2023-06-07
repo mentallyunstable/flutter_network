@@ -6,6 +6,11 @@ import 'package:flutter_network/flutter_network.dart';
 
 import 'logger/_logger.dart';
 
+/// HTTP service for doing requests and decoding response data.
+/// Supports multiple types of error and highly customizable for any purposes.
+///
+/// Built upon dio package.
+/// For more complex info on how HTTP client works, refer to dio package documentary.
 class NetworkService {
   final NetworkOptions options;
 
@@ -31,7 +36,7 @@ class NetworkService {
     }
   }
 
-  /// Method to make http GET request which is a alias of [dio.fetch(RequestOptions)].
+  /// Method to make http GET request.
   ///
   /// [path] - request endpoint.
   ///
@@ -45,18 +50,30 @@ class NetworkService {
   /// to any error.
   ///
   /// If device has no internet connection, returns
-  /// [ErrorResult] with [NoConnectionError].
+  /// [ErrorResult] with [ConnectionNetworkError].
+  ///
+  /// If response data can't be decoded, throws [TypeError] and returns
+  /// [ErrorResult] with [TypeNetworkError].
+  ///
+  /// If response status code is >=400 < 500, returns [ResponseNetworkError]
+  /// with decoded data, if [NetworkOptions.errorDataFromJson] was provided.
+  ///
+  /// If response status code is >= 300 < 400 and >= 500, returns [DioNetworkError].
   Future<Result<T, E>> get<T, E extends ErrorData>(
     final String path,
     final T Function(Map<String, dynamic> json) fromJson, {
+    final NetworkOptions? networkOptions,
     final Map<String, dynamic>? queryParameters,
     final Options? options,
     final CancelToken? cancelToken,
     final ProgressCallback? onReceiveProgress,
   }) async {
     final NetworkLogInfo logInfo = NetworkLogInfo(
-      loggerOptions: this.options.loggerOptions,
-      baseUrl: this.options.baseUrl ?? _dio.options.baseUrl,
+      loggerOptions:
+          networkOptions?.loggerOptions ?? this.options.loggerOptions,
+      baseUrl: networkOptions?.baseUrl ??
+          this.options.baseUrl ??
+          _dio.options.baseUrl,
       path: path,
       method: 'GET',
       headers: options?.headers,
@@ -77,10 +94,11 @@ class NetworkService {
       ),
       fromJson: fromJson,
       logInfo: logInfo,
+      options: networkOptions,
     );
   }
 
-  /// Method to make http POST request which is a alias of [dio.fetch(RequestOptions)].
+  /// Method to make http POST request.
   ///
   /// [path] - request endpoint.
   ///
@@ -96,11 +114,20 @@ class NetworkService {
   /// to any error.
   ///
   /// If device has no internet connection, returns
-  /// [ErrorResult] with [NoConnectionError].
+  /// [ErrorResult] with [ConnectionNetworkError].
+  ///
+  /// If response data can't be decoded, throws [TypeError] and returns
+  /// [ErrorResult] with [TypeNetworkError].
+  ///
+  /// If response status code is >=400 < 500, returns [ResponseNetworkError]
+  /// with decoded data, if [NetworkOptions.errorDataFromJson] was provided.
+  ///
+  /// If response status code is >= 300 < 400 and >= 500, returns [DioNetworkError].
   Future<Result<T, E>> post<T, E extends ErrorData>(
     final String path,
     final T Function(Map<String, dynamic> json) fromJson, {
     final Object? data = const {},
+    final NetworkOptions? networkOptions,
     final Map<String, dynamic>? queryParameters,
     final Options? options,
     final CancelToken? cancelToken,
@@ -108,8 +135,11 @@ class NetworkService {
     final ProgressCallback? onReceiveProgress,
   }) async {
     final NetworkLogInfo logInfo = NetworkLogInfo(
-      loggerOptions: this.options.loggerOptions,
-      baseUrl: this.options.baseUrl ?? _dio.options.baseUrl,
+      loggerOptions:
+          networkOptions?.loggerOptions ?? this.options.loggerOptions,
+      baseUrl: networkOptions?.baseUrl ??
+          this.options.baseUrl ??
+          _dio.options.baseUrl,
       path: path,
       method: 'POST',
       headers: options?.headers,
@@ -131,10 +161,11 @@ class NetworkService {
       ),
       fromJson: fromJson,
       logInfo: logInfo,
+      options: networkOptions,
     );
   }
 
-  /// Method to make http PUT request which is a alias of [dio.fetch(RequestOptions)].
+  /// Method to make http PUT request.
   ///
   /// [path] - request endpoint.
   ///
@@ -150,11 +181,20 @@ class NetworkService {
   /// to any error.
   ///
   /// If device has no internet connection, returns
-  /// [ErrorResult] with [NoConnectionError].
+  /// [ErrorResult] with [ConnectionNetworkError].
+  ///
+  /// If response data can't be decoded, throws [TypeError] and returns
+  /// [ErrorResult] with [TypeNetworkError].
+  ///
+  /// If response status code is >=400 < 500, returns [ResponseNetworkError]
+  /// with decoded data, if [NetworkOptions.errorDataFromJson] was provided.
+  ///
+  /// If response status code is >= 300 < 400 and >= 500, returns [DioNetworkError].
   Future<Result<T, E>> put<T, E extends ErrorData>(
     final String path,
     final T Function(Map<String, dynamic> json) fromJson, {
     required final Object data,
+    final NetworkOptions? networkOptions,
     final Map<String, dynamic>? queryParameters,
     final Options? options,
     final CancelToken? cancelToken,
@@ -162,8 +202,11 @@ class NetworkService {
     final ProgressCallback? onReceiveProgress,
   }) async {
     final NetworkLogInfo logInfo = NetworkLogInfo(
-      loggerOptions: this.options.loggerOptions,
-      baseUrl: this.options.baseUrl ?? _dio.options.baseUrl,
+      loggerOptions:
+          networkOptions?.loggerOptions ?? this.options.loggerOptions,
+      baseUrl: networkOptions?.baseUrl ??
+          this.options.baseUrl ??
+          _dio.options.baseUrl,
       path: path,
       method: 'PUT',
       headers: options?.headers,
@@ -186,10 +229,11 @@ class NetworkService {
       ),
       fromJson: fromJson,
       logInfo: logInfo,
+      options: networkOptions,
     );
   }
 
-  /// Method to make http PATCH request which is a alias of [dio.fetch(RequestOptions)].
+  /// Method to make http PATCH request.
   ///
   /// [path] - request endpoint.
   ///
@@ -205,11 +249,20 @@ class NetworkService {
   /// to any error.
   ///
   /// If device has no internet connection, returns
-  /// [ErrorResult] with [NoConnectionError].
+  /// [ErrorResult] with [ConnectionNetworkError].
+  ///
+  /// If response data can't be decoded, throws [TypeError] and returns
+  /// [ErrorResult] with [TypeNetworkError].
+  ///
+  /// If response status code is >=400 < 500, returns [ResponseNetworkError]
+  /// with decoded data, if [NetworkOptions.errorDataFromJson] was provided.
+  ///
+  /// If response status code is >= 300 < 400 and >= 500, returns [DioNetworkError].
   Future<Result<T, E>> patch<T, E extends ErrorData>(
     final String path,
     final T Function(Map<String, dynamic> json) fromJson, {
     required final Object data,
+    final NetworkOptions? networkOptions,
     final Map<String, dynamic>? queryParameters,
     final Options? options,
     final CancelToken? cancelToken,
@@ -217,8 +270,11 @@ class NetworkService {
     final ProgressCallback? onReceiveProgress,
   }) async {
     final NetworkLogInfo logInfo = NetworkLogInfo(
-      loggerOptions: this.options.loggerOptions,
-      baseUrl: this.options.baseUrl ?? _dio.options.baseUrl,
+      loggerOptions:
+          networkOptions?.loggerOptions ?? this.options.loggerOptions,
+      baseUrl: networkOptions?.baseUrl ??
+          this.options.baseUrl ??
+          _dio.options.baseUrl,
       path: path,
       method: 'PATCH',
       headers: options?.headers,
@@ -241,10 +297,11 @@ class NetworkService {
       ),
       fromJson: fromJson,
       logInfo: logInfo,
+      options: networkOptions,
     );
   }
 
-  /// Method to make http DELETE request which is a alias of [dio.fetch(RequestOptions)].
+  /// Method to make http DELETE request.
   ///
   /// [path] - request endpoint.
   ///
@@ -260,18 +317,30 @@ class NetworkService {
   /// to any error.
   ///
   /// If device has no internet connection, returns
-  /// [ErrorResult] with [NoConnectionError].
+  /// [ErrorResult] with [ConnectionNetworkError].
+  ///
+  /// If response data can't be decoded, throws [TypeError] and returns
+  /// [ErrorResult] with [TypeNetworkError].
+  ///
+  /// If response status code is >=400 < 500, returns [ResponseNetworkError]
+  /// with decoded data, if [NetworkOptions.errorDataFromJson] was provided.
+  ///
+  /// If response status code is >= 300 < 400 and >= 500, returns [DioNetworkError].
   Future<Result<T, E>> delete<T, E extends ErrorData>(
     final String path, {
     final T Function(Map<String, dynamic> json)? fromJson,
     final Object? data = const {},
+    final NetworkOptions? networkOptions,
     final Map<String, dynamic>? queryParameters,
     final Options? options,
     final CancelToken? cancelToken,
   }) async {
     final NetworkLogInfo logInfo = NetworkLogInfo(
-      loggerOptions: this.options.loggerOptions,
-      baseUrl: this.options.baseUrl ?? _dio.options.baseUrl,
+      loggerOptions:
+          networkOptions?.loggerOptions ?? this.options.loggerOptions,
+      baseUrl: networkOptions?.baseUrl ??
+          this.options.baseUrl ??
+          _dio.options.baseUrl,
       path: path,
       method: 'DELETE',
       headers: options?.headers,
@@ -291,10 +360,11 @@ class NetworkService {
       ),
       fromJson: fromJson,
       logInfo: logInfo,
+      options: networkOptions,
     );
   }
 
-  /// Decoding [Response.data] data to the provided [T] generic type.
+  /// Decoding [Response.data] to the provided [T] generic type.
   T? _decode<T>(
     final Response response,
     final T Function(Map<String, dynamic> json)? fromJson,
@@ -314,12 +384,14 @@ class NetworkService {
     throw TypeError();
   }
 
+  /// Decoding response data if it has type of [Map].
   T _decodeMap<T>(
     final Response response,
     final T Function(Map<String, dynamic> json) fromJson,
   ) =>
       fromJson(response.data);
 
+  /// Decoding response data if it has type of [List].
   T _decodeList<T>(
     final Response response,
     final T Function(Map<String, dynamic> json) fromJson,
@@ -329,13 +401,17 @@ class NetworkService {
     return List.from(list.map((item) => fromJson(item)).toList()) as T;
   }
 
+  /// Doing request, handling response and returns [Result].
   Future<Result<T, E>> _handleRequest<T, E extends ErrorData>({
     required final Future<Response> request,
     required final T Function(Map<String, dynamic> json)? fromJson,
     required NetworkLogInfo logInfo,
+    NetworkOptions? options,
   }) async {
+    final networkOptions = options ?? this.options;
     try {
-      if (options.checkConnection && await options.connection.isNotConnected) {
+      if (networkOptions.checkConnection &&
+          await networkOptions.connection.isNotConnected) {
         const error = NetworkError.connection();
 
         NetworkLogger.logError(logInfo.copyWith(error: error));
@@ -346,7 +422,10 @@ class NetworkService {
       final response = await request;
       logInfo = logInfo.copyWith(response: response);
 
-      return Result.success(data: _decode(response, fromJson));
+      return Result.success(
+        response: response,
+        data: _decode(response, fromJson),
+      );
     } on TypeError catch (typeError, stackTrace) {
       final error = NetworkError.type(
         stackTrace: stackTrace,
@@ -356,24 +435,29 @@ class NetworkService {
       NetworkLogger.logError(logInfo.copyWith(error: error));
 
       return Result.error(error: error);
-    } on DioError catch (dioError, stackTrace) {
-      final error = NetworkError.dio(
-        stackTrace: stackTrace,
-        dioError: dioError,
-      );
+    } on DioException catch (dioException, stackTrace) {
+      final error = dioException.response?.data != null
+          ? NetworkError.response(
+              stackTrace: stackTrace,
+              response: dioException.response!,
+            )
+          : NetworkError.dio(
+              stackTrace: stackTrace,
+              dioException: dioException,
+            );
 
-      NetworkLogger.logError(logInfo.copyWith(error: error));
+      NetworkLogger.logError(logInfo.copyWith(
+        error: error,
+        response: dioException.response,
+      ));
 
       return Result.error(
         error: error,
-        // data: dioError.response?.data != null &&
-        //         options.errorDataFromJson != null
-        //     ? _decodeError(dioError.response!, options.errorDataFromJson!)
-        //     : null,
-        data:
-            dioError.response?.data != null && options.errorDataFromJson != null
-                ? options.errorDataFromJson!(dioError.response!.data) as E
-                : null,
+        data: dioException.response?.data != null &&
+                networkOptions.errorDataFromJson != null
+            ? networkOptions.errorDataFromJson!(dioException.response!.data)
+                as E
+            : null,
       );
     }
   }

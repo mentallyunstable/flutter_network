@@ -8,6 +8,8 @@ import '../data/data.dart';
 
 import 'network_log_info.dart';
 
+/// Used by [NetworkService] for printing all useful information
+/// about requests and their responses.
 class NetworkLogger {
   /// Unicode symbols for pretty logging
   static const _boxDownRight = '\u250F';
@@ -18,11 +20,14 @@ class NetworkLogger {
   static const _verticalLineSymbol = '\u2503';
   static const _pointLeftSymbol = '\u252B';
   static const _pointRightSymbol = '\u2523';
-  static const _doublePointerRight = '$_pointRightSymbol$_horizontalLineSymbol';
 
   static const _indent = '  ';
 
   static void logRequest(final NetworkLogInfo info) {
+    if (info.loggerOptions.printOnlyInDebug && !kDebugMode) {
+      return;
+    }
+
     if (!info.loggerOptions.printRequest) {
       return;
     }
@@ -41,6 +46,10 @@ class NetworkLogger {
   }
 
   static void logResponse(final NetworkLogInfo info) {
+    if (info.loggerOptions.printOnlyInDebug && !kDebugMode) {
+      return;
+    }
+
     if (!info.loggerOptions.printResponse) {
       return;
     }
@@ -66,6 +75,10 @@ class NetworkLogger {
   }
 
   static void logError(final NetworkLogInfo info) {
+    if (info.loggerOptions.printOnlyInDebug && !kDebugMode) {
+      return;
+    }
+
     if (!info.loggerOptions.printError) {
       return;
     }
@@ -74,7 +87,7 @@ class NetworkLogger {
     _printInfo(title: 'method', info: info.method);
     _printInfo(title: 'url', info: info.url);
     _printInfo(title: 'error type', info: info.error.runtimeType);
-    _printErrorMessage(info.error);
+    _printErrorMessage(info);
     _printFooter('StackTrace of the error will be logged under');
     _debugPrint(info.error!.stackTrace);
   }
@@ -104,6 +117,29 @@ class NetworkLogger {
 
   static void _printSubInfo(final dynamic info, [final int subLevels = 1]) {
     _debugPrint('$_pointRightSymbol${_horizontalLineSymbol * subLevels} $info');
+  }
+
+  static void _printErrorMessage(final NetworkLogInfo info) {
+    final error = info.error;
+    if (error is TypeNetworkError) {
+      _printInfo(title: 'error message', info: error.typeError);
+
+      return;
+    }
+
+    if (error is DioNetworkError) {
+      _printInfo(title: 'DioExceptionType', info: error.dioException.type);
+      _printInfo(title: 'error message', info: error.dioException.message);
+      if (error.dioException.type != DioExceptionType.unknown) {
+        _printResponse(info);
+      }
+
+      return;
+    }
+
+    if (error is ResponseNetworkError) {
+      _printResponse(info);
+    }
   }
 
   static void _printFooter([final String? additionalInfo]) {
@@ -263,28 +299,7 @@ class NetworkLogger {
         '${addComma ? ',' : ''}');
   }
 
-  static void _printErrorMessage(final NetworkError? error) {
-    if (error is TypeNetworkError) {
-      _printInfo(title: 'error message', info: error.typeError);
-    }
-
-    if (error is DioNetworkError) {
-      _printInfo(title: 'DioErrorType', info: error.dioError.type);
-      _printInfo(title: 'error message', info: error.dioError.message);
-      if (error.dioError.type != DioErrorType.unknown) {
-        _printInfo(title: 'error response');
-        final response = error.dioError.response;
-        if (response == null) {
-          return;
-        }
-        if (response.data is Map) {
-          _printMap(response.data as Map);
-        }
-      }
-    }
-  }
-
-  static void _debugPrint(final dynamic object) {
+  static void _debugPrint(final Object? object) {
     if (kDebugMode) {
       print(object);
     }

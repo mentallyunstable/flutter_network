@@ -133,6 +133,24 @@ void main() {
 
     test('dio error', () async {
       NetworkOptions<TestErrorData> networkOptions = NetworkOptions(
+        baseUrl: 'https://blank-url.com',
+        connection: connection,
+      );
+      service = NetworkService(networkOptions);
+
+      final Result result = await service.get('', (json) {});
+
+      expect(result, isA<ErrorResult>());
+
+      if (result is ErrorResult) {
+        final error = result.error;
+
+        expect(error, isA<DioNetworkError>());
+      }
+    }, tags: [requestsTag, invalidTag]);
+
+    test('response error', () async {
+      NetworkOptions<TestErrorData> networkOptions = NetworkOptions(
         baseUrl: 'https://api.coincap.io/v2/',
         connection: connection,
         errorDataFromJson: TestErrorData.fromJson,
@@ -147,7 +165,7 @@ void main() {
       expect(result, isA<ErrorResult>());
       if (result is ErrorResult<TestPost, TestErrorData>) {
         final error = result.error;
-        expect(error, isA<DioNetworkError>());
+        expect(error, isA<ResponseNetworkError>());
 
         expect(result.data, isA<TestErrorData>());
 

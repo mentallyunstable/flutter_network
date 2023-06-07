@@ -1,5 +1,6 @@
-import '_network_error.dart';
+import 'network_error.dart';
 
+/// Describes [NetworkError] when response data wasn't decoded because of [TypeError].
 class TypeNetworkError extends NetworkError {
   final TypeError typeError;
 

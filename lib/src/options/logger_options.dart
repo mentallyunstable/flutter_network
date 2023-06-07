@@ -1,24 +1,27 @@
-class NetworkLoggerOptions {
-  /// Any logs will be printed only while [kDebugMode] is [true]
-  final bool printOnlyDebug;
+import 'package:flutter_network/src/logger/_logger.dart' show NetworkLogger;
 
-  /// Print request logs before the request
+/// Represents configurable options for [NetworkLogger].
+class NetworkLoggerOptions {
+  /// Any logs will be printed only while [kDebugMode] is true.
+  final bool printOnlyInDebug;
+
+  /// Print request logs before the request.
   final bool printRequest;
 
-  /// Print response logs if request was successful
+  /// Print [Response] logs if request was successful.
   final bool printResponse;
 
-  /// Print error logs if request ended with an error
+  /// Print error logs if request ends with an error.
   final bool printError;
 
-  /// Print response headers if response was successful
+  /// Print [Response] headers if request was successful.
   final bool printResponseHeaders;
 
-  /// Print response body if response was successful
+  /// Print [Response] body if request was successful.
   final bool printResponseBody;
 
   const NetworkLoggerOptions({
-    this.printOnlyDebug = true,
+    this.printOnlyInDebug = true,
     this.printRequest = true,
     this.printResponse = true,
     this.printError = true,
@@ -26,8 +29,9 @@ class NetworkLoggerOptions {
     this.printResponseBody = true,
   });
 
+  /// Creates a copy of object but with the given fields replaced with the new values.
   NetworkLoggerOptions copyWith({
-    final bool? printOnlyDebug,
+    final bool? printOnlyInDebug,
     final bool? printRequest,
     final bool? printResponse,
     final bool? printError,
@@ -35,7 +39,7 @@ class NetworkLoggerOptions {
     final bool? printResponseBody,
   }) {
     return NetworkLoggerOptions(
-      printOnlyDebug: printOnlyDebug ?? this.printOnlyDebug,
+      printOnlyInDebug: printOnlyInDebug ?? this.printOnlyInDebug,
       printRequest: printRequest ?? this.printRequest,
       printResponse: printResponse ?? this.printResponse,
       printError: printError ?? this.printError,

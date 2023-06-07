@@ -3,6 +3,8 @@ import 'package:dio/dio.dart';
 import '../data/data.dart';
 import '../options/logger_options.dart';
 
+/// Describes info for [NetworkLogger] to print. This object builds while
+/// doing requests and handling their responses.
 class NetworkLogInfo {
   final NetworkLoggerOptions loggerOptions;
   final String baseUrl;

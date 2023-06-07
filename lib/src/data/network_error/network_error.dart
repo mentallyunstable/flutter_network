@@ -1,10 +1,11 @@
-import 'package:dio/dio.dart' show Response, DioError;
+import 'package:dio/dio.dart' show Response, DioException;
 
 import 'connection_network_error.dart';
 import 'dio_network_error.dart';
 import 'response_network_error.dart';
 import 'type_network_error.dart';
 
+/// Base class for all types of errors created by [NetworkService] requests.
 abstract class NetworkError {
   final StackTrace? stackTrace;
 
@@ -24,6 +25,6 @@ abstract class NetworkError {
 
   const factory NetworkError.dio({
     required final StackTrace stackTrace,
-    required final DioError dioError,
+    required final DioException dioException,
   }) = DioNetworkError;
 }
