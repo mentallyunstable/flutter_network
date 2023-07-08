@@ -86,6 +86,8 @@ class NetworkLogger {
     _printHeader('error');
     _printInfo(title: 'method', info: info.method);
     _printInfo(title: 'url', info: info.url);
+    _printInfo(title: 'status code', info: info.response?.statusCode);
+    _printInfoIfNotNull('statusMessage', info.response?.statusMessage);
     _printInfo(title: 'error type', info: info.error.runtimeType);
     _printErrorMessage(info);
     _printFooter('StackTrace of the error will be logged under');

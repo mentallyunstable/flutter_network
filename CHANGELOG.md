@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.2] - 2023-07-08
+
+### Fixed
+- Now `statusCode` and `statusMessage` values printed when `NetworkError` occurred
+
 ## [1.0.1] - 2023-06-07
 
 ### Added
