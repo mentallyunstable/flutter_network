@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.3] - 2023-07-11
+
+### Fixed
+- Now `fromJson` is nullable in `NetworkService` request methods
+
 ## [1.0.2] - 2023-07-08
 
 ### Fixed

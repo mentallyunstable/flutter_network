@@ -61,7 +61,7 @@ class NetworkService {
   /// If response status code is >= 300 < 400 and >= 500, returns [DioNetworkError].
   Future<Result<T, E>> get<T, E extends ErrorData>(
     final String path,
-    final T Function(Map<String, dynamic> json) fromJson, {
+    final T Function(Map<String, dynamic> json)? fromJson, {
     final NetworkOptions? networkOptions,
     final Map<String, dynamic>? queryParameters,
     final Options? options,
@@ -125,7 +125,7 @@ class NetworkService {
   /// If response status code is >= 300 < 400 and >= 500, returns [DioNetworkError].
   Future<Result<T, E>> post<T, E extends ErrorData>(
     final String path,
-    final T Function(Map<String, dynamic> json) fromJson, {
+    final T Function(Map<String, dynamic> json)? fromJson, {
     final Object? data = const {},
     final NetworkOptions? networkOptions,
     final Map<String, dynamic>? queryParameters,
@@ -192,7 +192,7 @@ class NetworkService {
   /// If response status code is >= 300 < 400 and >= 500, returns [DioNetworkError].
   Future<Result<T, E>> put<T, E extends ErrorData>(
     final String path,
-    final T Function(Map<String, dynamic> json) fromJson, {
+    final T Function(Map<String, dynamic> json)? fromJson, {
     required final Object data,
     final NetworkOptions? networkOptions,
     final Map<String, dynamic>? queryParameters,
@@ -260,7 +260,7 @@ class NetworkService {
   /// If response status code is >= 300 < 400 and >= 500, returns [DioNetworkError].
   Future<Result<T, E>> patch<T, E extends ErrorData>(
     final String path,
-    final T Function(Map<String, dynamic> json) fromJson, {
+    final T Function(Map<String, dynamic> json)? fromJson, {
     required final Object data,
     final NetworkOptions? networkOptions,
     final Map<String, dynamic>? queryParameters,

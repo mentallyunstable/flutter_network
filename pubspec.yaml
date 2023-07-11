@@ -1,6 +1,6 @@
 name: flutter_network
 description: Package build upon powerful HTTP client dio.
-version: 1.0.2
+version: 1.0.3
 homepage: https://github.com/mentallyunstable/flutter_network
 
 environment:
